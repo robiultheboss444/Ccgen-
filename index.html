@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sha Gen - Professional Credit Card Tool</title>
+    <link rel="icon" href="https://i.ibb.co/6g3wYwR/credit-card-icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- CORE THEME & LAYOUT (INDIGO/BLUE VERSION) --- */
+        :root {
+            --bg-color: #0f172a; /* Slate-900 */
+            --header-bg: #1e293b; /* Slate-800 */
+            --glass-bg: rgba(30, 41, 59, 0.5); /* Slate-800 with opacity */
+            --border-color: rgba(71, 85, 105, 0.3); /* Slate-700 with opacity */
+            
+            /* DESIGN CHANGE: Switched from Green to Indigo for a professional look */
+            --primary-accent: #818cf8; /* Indigo-400 */
+            --primary-accent-hover: #a5b4fc; /* Indigo-300 */
+            --transition-curve: ease-in-out;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: #e2e8f0; /* Slate-200 */
+            overflow-x: hidden;
+        }
+
+        /* --- SUBTLE ANIMATED BACKGROUND --- */
+        .animated-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; 
+            /* DESIGN CHANGE: Switched to a blue/purple gradient */
+            background: linear-gradient(45deg, #0f172a, #1d1b31, #3730a3);
+            background-size: 400% 400%; animation: gradient-animation 25s ease infinite;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- CARD & FORM STYLING --- */
+        .glass-card {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: blur(16px); 
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+        }
+        
+        #result { font-family: 'Fira Code', monospace; }
+        #result::-webkit-scrollbar { width: 8px; }
+        #result::-webkit-scrollbar-track { background: transparent; }
+        #result::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 4px; border: 2px solid var(--glass-bg); }
+        
+        .form-input {
+            background-color: #334155; border: 1px solid #475569;
+            transition: border-color 0.3s var(--transition-curve), box-shadow 0.3s var(--transition-curve);
+        }
+        .form-input:focus {
+            outline: none; border-color: var(--primary-accent);
+            /* DESIGN CHANGE: Updated shadow to match new Indigo accent */
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+        }
+        
+        /* --- BUTTONS & ACCORDION --- */
+        .btn-primary { background-color: var(--primary-accent); color: #020617; transition: background-color 0.3s var(--transition-curve); }
+        .btn-primary:hover { background-color: var(--primary-accent-hover); }
+        .btn-secondary { background-color: #475569; color: #cbd5e1; transition: background-color 0.3s var(--transition-curve); }
+        .btn-secondary:hover { background-color: #64748b; }
+        button:active { transform: scale(0.98); transition: transform 0.1s; }
+
+        /* --- FADE IN ANIMATION --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.6s var(--transition-curve) forwards; }
+
+        /* --- CUSTOM SELECT (MATCHING INDIGO THEME) --- */
+        .custom-select-container { position: relative; }
+        .custom-select-trigger { background-color: #334155; border: 1px solid #475569; border-radius: 0.5rem; padding: 0.75rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s var(--transition-curve); }
+        .custom-select-container.open .custom-select-trigger { 
+            border-color: var(--primary-accent); 
+            /* DESIGN CHANGE: Updated shadow to match new Indigo accent */
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2); 
+        }
+        .custom-select-trigger .arrow { transition: transform 0.3s var(--transition-curve); }
+        .custom-select-container.open .arrow { transform: rotate(180deg); }
+        
+        /* --- FIX: Increased z-index and max-height for dropdowns --- */
+        .custom-select-options { 
+            position: absolute; 
+            top: calc(100% + 8px); 
+            left: 0; 
+            right: 0; 
+            background-color: #1e293b; 
+            border: 1px solid #475569; 
+            border-radius: 0.5rem; 
+            z-index: 50; /* Ensures dropdown is on top */
+            max-height: 250px; /* Increased length */
+            overflow-y: auto; 
+            opacity: 0; 
+            transform: translateY(-10px); 
+            pointer-events: none; 
+            transition: opacity 0.3s var(--transition-curve), transform 0.3s var(--transition-curve); 
+        }
+
+        .custom-select-container.open .custom-select-options { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .custom-select-option { padding: 0.75rem; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+        .custom-select-option:hover { background-color: var(--primary-accent); color: #020617; }
+        .custom-select-option.selected { background-color: var(--primary-accent); color: #020617; font-weight: 500; }
+        .custom-select-options::-webkit-scrollbar { width: 8px; } .custom-select-options::-webkit-scrollbar-track { background: #334155; } .custom-select-options::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 4px; }
+
+        /* --- FIX: Stacking context for cards to help with layering --- */
+        main > .glass-card {
+            position: relative; /* Establishes stacking context */
+        }
+        main > .glass-card:first-of-type {
+            z-index: 20; /* Higher z-index for the form card */
+        }
+         main > .glass-card:last-of-type {
+            z-index: 10; /* Lower z-index for the results card */
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="animated-bg"></div>
+    <header class="w-full bg-slate-800 border-b border-slate-700 mb-8 fade-in" style="animation-delay: 0.1s;">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16">
+                 <h1 class="text-2xl font-bold text-white">Sha Gen</h1>
+            </div>
+        </div>
+    </header>
+    <main class="w-full max-w-4xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8">
+        <div class="glass-card rounded-2xl p-6 md:p-8 w-full fade-in" style="animation-delay: 0.3s;">
+            <form id="generator-form" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="bin" class="block mb-2 text-sm font-medium text-indigo-400">BIN (Bank Identification Number)</label>
+                        <input class="w-full form-input text-white text-base rounded-lg p-3" type="text" id="bin" placeholder="544111xxxxxxxxxx" required>
+                    </div>
+                    <div>
+                        <label for="quantity" class="block mb-2 text-sm font-medium text-indigo-400">Quantity</label>
+                        <input class="w-full form-input text-white text-sm rounded-lg p-3" type="number" id="quantity" value="15" min="1" max="500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-indigo-400">Expiry Month</label>
+                        <div id="custom-month-select" class="custom-select-container"></div>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm font-medium text-indigo-400">Expiry Year</label>
+                        <div id="custom-year-select" class="custom-select-container"></div>
+                    </div>
+                    <div>
+                        <label for="cvv" class="block mb-2 text-sm font-medium text-indigo-400">CVV (Optional)</label>
+                        <input class="w-full form-input text-white text-sm rounded-lg p-3" type="text" id="cvv" placeholder="Random">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <button id="generate-button" type="submit" class="w-full btn-primary font-bold py-3 text-lg rounded-lg">Generate</button>
+                    <button id="copy-button" type="button" class="w-full btn-secondary font-bold py-3 text-lg rounded-lg">Copy</button>
+                </div>
+            </form>
+        </div>
+        <div class="glass-card rounded-2xl p-6 md:p-8 w-full fade-in" style="animation-delay: 0.4s;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-indigo-400">Results</h2>
+                <div id="card-count" class="text-right text-sm text-slate-400 h-5"></div>
+            </div>
+            <textarea id="result" class="w-full bg-slate-900/70 border border-slate-700 text-white text-base rounded-lg p-4 resize-none h-96" readonly placeholder="Your generated cards will appear here..."></textarea>
+        </div>
+    </main>
+    <footer class="w-full max-w-4xl mx-auto my-8 text-center text-slate-500">
+        <p>&copy; 2024 Sha Gen. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        (function() {
+            'use strict';
+            const API_URL = 'https://cc-gen-lime.vercel.app/generate';
+            let selectedMonth = '';
+            let selectedYear = '';
+            const binInput = document.getElementById('bin');
+            const cvvInput = document.getElementById('cvv');
+            const quantityInput = document.getElementById('quantity');
+            const generateButton = document.getElementById('generate-button');
+            const resultTextarea = document.getElementById('result');
+            const cardCount = document.getElementById('card-count');
+            const copyButton = document.getElementById('copy-button');
+            const generatorForm = document.getElementById('generator-form');
+
+            function createCustomSelect(containerId, initialOptions, onChange) {
+                const container = document.getElementById(containerId);
+                if (!container) return null;
+                container.innerHTML = `<div class="custom-select-trigger" tabindex="0"><span class="selected-value">Random</span><div class="arrow">&#x25BC;</div></div><div class="custom-select-options" role="listbox"></div>`;
+                const trigger = container.querySelector('.custom-select-trigger');
+                const optionsContainer = container.querySelector('.custom-select-options');
+                const selectedValueEl = container.querySelector('.selected-value');
+                const populateOptions = (newOptions) => {
+                    optionsContainer.innerHTML = '';
+                    newOptions.forEach(opt => {
+                        const optionEl = document.createElement('div');
+                        optionEl.className = 'custom-select-option';
+                        optionEl.textContent = opt.text;
+                        optionEl.dataset.value = opt.value;
+                        if (opt.disabled) {
+                            optionEl.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                        optionsContainer.appendChild(optionEl);
+                    });
+                };
+                const closeDropdown = () => container.classList.remove('open');
+                trigger.addEventListener('click', () => container.classList.toggle('open'));
+                optionsContainer.addEventListener('click', (event) => {
+                    const selectedOption = event.target;
+                    if (selectedOption.classList.contains('custom-select-option') && !selectedOption.classList.contains('opacity-50')) {
+                        selectedValueEl.textContent = selectedOption.textContent;
+                        onChange(selectedOption.dataset.value);
+                        closeDropdown();
+                    }
+                });
+                populateOptions(initialOptions);
+                return { populateOptions };
+            }
+            window.addEventListener('click', (event) => {
+                document.querySelectorAll('.custom-select-container.open').forEach(select => {
+                    if (!select.contains(event.target)) {
+                        select.classList.remove('open');
+                    }
+                });
+            });
+            
+            const showToast = (message, type = 'success') => {
+                const toast = document.createElement('div');
+                /* DESIGN CHANGE: Switched bg-emerald-500 to bg-indigo-500 */
+                const bgColor = type === 'error' ? 'bg-red-500' : 'bg-indigo-500';
+                toast.className = `fixed bottom-5 right-5 z-50 ${bgColor} text-white py-2 px-4 rounded-lg shadow-xl opacity-0 transform translate-y-2 transition-all duration-300`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-2'), 10);
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                    toast.addEventListener('transitionend', () => toast.remove());
+                }, 3000);
+            };
+            const toggleLoadingState = (isLoading) => {
+                generateButton.disabled = isLoading;
+                generateButton.innerHTML = isLoading ? `<span class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</span>` : 'Generate';
+            };
+            const monthSelectInstance = createCustomSelect('custom-month-select', [], value => { selectedMonth = value; });
+            const yearSelectInstance = createCustomSelect('custom-year-select', [], value => { selectedYear = value; populateDateDropdowns(true); });
+            function populateDateDropdowns(yearChanged = false) {
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth() + 1;
+                if (!yearChanged && yearSelectInstance) {
+                    const yearOpts = [{ text: 'Random', value: '' }];
+                    for (let year = currentYear; year <= currentYear + 15; year++) {
+                        yearOpts.push({ text: year, value: year });
+                    }
+                    yearSelectInstance.populateOptions(yearOpts);
+                }
+                if (monthSelectInstance) {
+                    const monthOpts = [{ text: 'Random', value: '' }];
+                    const chosenYear = parseInt(selectedYear, 10);
+                    for (let i = 1; i <= 12; i++) {
+                        const monthValue = i.toString().padStart(2, '0');
+                        const isDisabled = chosenYear === currentYear && i < currentMonth;
+                        monthOpts.push({ text: monthValue, value: monthValue, disabled: isDisabled });
+                    }
+                    monthSelectInstance.populateOptions(monthOpts);
+                }
+            }
+            const handleGeneration = async (event) => {
+                event.preventDefault();
+                const bin = binInput.value.replace(/[^0-9xX]/g, "");
+                const quantity = parseInt(quantityInput.value, 10) || 15;
+                if (bin.length < 6) return showToast("BIN must be at least 6 digits.", "error");
+                if (quantity > 500) return showToast("Quantity cannot exceed 500.", "error");
+                const apiUrl = buildApiUrl(bin, quantity);
+                resultTextarea.value = "Contacting server...";
+                cardCount.textContent = "";
+                toggleLoadingState(true);
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                    const data = await response.json();
+                    processApiResponse(data);
+                } catch (error) {
+                    resultTextarea.value = `Error: ${error.message}`;
+                    showToast("API Connection Error.", "error");
+                } finally {
+                    toggleLoadingState(false);
+                }
+            };
+            function buildApiUrl(bin, quantity) {
+                let url = new URL(API_URL);
+                url.searchParams.append('bin', bin);
+                url.searchParams.append('limit', quantity);
+                if (selectedMonth) url.searchParams.append('month', selectedMonth);
+                if (selectedYear) url.searchParams.append('year', String(selectedYear).slice(-2));
+                if (cvvInput.value) url.searchParams.append('cvv', cvvInput.value);
+                return url;
+            }
+            function processApiResponse(data) {
+                if (data && data.cards && data.cards.length > 0) {
+                    resultTextarea.value = data.cards.map(card => `${card.number}|${card.expiry}|${card.cvv}`).join("\n");
+                    const numCards = data.cards.length;
+                    cardCount.textContent = `${numCards} card${numCards > 1 ? 's' : ''} generated.`;
+                    showToast(`${numCards} cards generated!`, 'success');
+                } else {
+                    resultTextarea.value = "";
+                    cardCount.textContent = "";
+                    showToast("No cards were generated.", "error");
+                }
+            }
+            const copyResults = () => {
+                const textToCopy = resultTextarea.value;
+                if (!textToCopy || textToCopy.startsWith('Generating') || textToCopy.startsWith('Contacting server...')) {
+                    return showToast("Nothing to copy.", "error");
+                }
+                
+                try {
+                    // Fallback for browsers/iframes that don't support navigator.clipboard
+                    resultTextarea.select();
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges(); // Deselect
+                    showToast("Results copied!", "success");
+                } catch (err) {
+                    showToast("Could not copy.", "error");
+                }
+            };
+            function initialize() {
+                generatorForm.addEventListener("submit", handleGeneration);
+                copyButton.addEventListener("click", copyResults);
+                populateDateDropdowns();
+                // NAME CHANGE: Console log updated
+                console.log("Sha Gen UI Script Initialized");
+            }
+
+            initialize();
+        })();
+    </script>
+</body>
+</html>
